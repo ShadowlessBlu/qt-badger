@@ -5,7 +5,7 @@ A wearable event badge built on the [Arduino UNO Q](https://www.arduino.cc/) —
 and an on-device LLM, talking to the MCU over the board's own Bridge RPC link. A companion Android app remote-controls
 the whole thing over Wi-Fi.
 
-[**Download the Android app**](../../releases/latest) · [API reference](docs/API.md) · [Bridge protocol](docs/BRIDGE.md) · [Deploy guide](docs/DEPLOY.md) · [App internals](docs/ANDROID.md)
+[**Download the Android app**](https://github.com/ShadowlessBlu/qt-badger/releases/latest) · [API reference](docs/API.md) · [Bridge protocol](docs/BRIDGE.md) · [Deploy guide](docs/DEPLOY.md) · [App internals](docs/ANDROID.md)
 
 ```
  Android app (qt_badger_app/) ─┐                       ┌─ STM32 sketch: TFT badge UI, 2 buttons, GPS, buzzer
