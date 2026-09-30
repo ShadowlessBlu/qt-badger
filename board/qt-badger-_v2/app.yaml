@@ -1,0 +1,8 @@
+name: QT BADGEr _v2
+description: "Wearable badge on the UNO Q: a TFT UI on the STM32 (Map, Peers, Tasks, Voice, Alert, Settings, Name tag, Inbox), a hub with a REST API and dashboard on Linux, and an Android app to drive it."
+ports: []
+bricks:
+- arduino:llm:
+    model: llamacpp:gemma-3-1b-it-Q4_0
+- arduino:web_ui: {}
+icon: 😀

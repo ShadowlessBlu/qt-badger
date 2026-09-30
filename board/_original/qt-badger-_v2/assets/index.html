@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badge Tasks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: rgba(30, 41, 59, 0.7);
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container { width: 100%; max-width: 500px; }
+        h1 {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 30px;
+            background: -webkit-linear-gradient(#60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background: var(--surface-color);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        .card-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin: 0 0 16px 0;
+        }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        textarea { resize: vertical; }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: default;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-connect { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .btn-connect:hover {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            box-shadow: 0 4px 12px rgba(245,158,11,0.4);
+        }
+        .status-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: #fbbf24;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-badge.connected {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.35);
+            color: #34d399;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.2s;
+        }
+        .task-item:hover { border-color: rgba(59,130,246,0.4); }
+        .task-info { display: flex; align-items: center; gap: 12px; }
+        .task-info input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--success-color); }
+        .task-info p { margin: 0; font-size: 0.95rem; }
+        .task-item.done .task-info p { text-decoration: line-through; color: var(--text-muted); }
+        .btn-delete {
+            background: transparent;
+            color: var(--danger-color);
+            width: auto;
+            padding: 8px 12px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .btn-delete:hover { background: rgba(239, 68, 68, 0.1); transform: none; box-shadow: none; }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: #10b981;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 30px;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(16,185,129,0.4);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>&#x1F4CB; Badge Tasks</h1>
+
+        <!-- ======================== -->
+        <!-- Connect Card (Web Serial, direct to the STM32 sketch) -->
+        <!-- ======================== -->
+        <div class="card">
+            <p class="card-title">&#x1F50C; Connection</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0;">
+                Talks to the badge over the same USB cable used to flash it — no WiFi involved.
+                Requires a secure context: use <code>http://localhost:7000</code>, not a plain network IP.
+            </p>
+            <button class="btn-connect" id="connectBtn" onclick="connect()">&#x1F50C; Connect to Badge</button>
+            <div id="statusBadge" class="status-badge">Not connected</div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- AI Schedule Deconstructor (WebUI -> LLM Brick -> Bridge) -->
+        <!-- ======================== -->
+        <div class="card">
+            <p class="card-title">&#x1F916; AI Schedule Deconstructor</p>
+            <div class="form-group">
+                <label>Paste schedule or agenda paragraph</label>
+                <textarea id="scheduleInput" rows="3" placeholder="e.g. Meet Alex near stage B at 2pm..."></textarea>
+            </div>
+            <button class="btn-connect" onclick="deconstructSchedule()">Deconstruct &amp; Push to Badge</button>
+        </div>
+
+        <!-- ======================== -->
+        <!-- Add Task Card (manual, also over Web Serial) -->
+        <!-- ======================== -->
+        <div class="card">
+            <p class="card-title">&#x2795; Add Task Manually</p>
+            <div class="form-group">
+                <label>Reminder text</label>
+                <input type="text" id="taskText" placeholder="e.g. Meet Alex near stage B" maxlength="80">
+            </div>
+            <button id="addBtn" onclick="addTask()" disabled>Add Task</button>
+        </div>
+
+        <!-- ======================== -->
+        <!-- Task List Card           -->
+        <!-- ======================== -->
+        <div class="card">
+            <p class="card-title">&#x1F4CC; Current Tasks</p>
+            <div id="taskList">
+                <p style="color: var(--text-muted); text-align:center;">Connect to load tasks.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Saved Successfully</div>
+
+    <script>
+        // ============================================================
+        // Web Serial transport — direct USB link to the STM32 sketch,
+        // independent of whether main.py is even running. Needs a
+        // secure context: works on http://localhost:7000, blocked by
+        // Chrome on a plain http://<ip>:7000.
+        // ============================================================
+        let port, writer, reader;
+        let lineBuf = "";
+
+        async function connect() {
+            if (!("serial" in navigator)) {
+                setStatus("Browser doesn't support Web Serial here — try http://localhost:7000, or Chrome/Edge.", false);
+                return;
+            }
+            try {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600 });
+                writer = port.writable.getWriter();
+                setStatus("Connected", true);
+                document.getElementById("addBtn").disabled = false;
+                document.getElementById("connectBtn").textContent = "\uD83D\uDD0C Reconnect";
+                readLoop();
+                sendCommand("LIST");
+            } catch (e) {
+                setStatus("Connection failed: " + e.message, false);
+            }
+        }
+
+        async function readLoop() {
+            const decoder = new TextDecoderStream();
+            port.readable.pipeTo(decoder.writable);
+            reader = decoder.readable.getReader();
+            let pending = [];
+            try {
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    lineBuf += value;
+                    let idx;
+                    while ((idx = lineBuf.indexOf("\n")) >= 0) {
+                        const line = lineBuf.slice(0, idx).replace("\r", "");
+                        lineBuf = lineBuf.slice(idx + 1);
+                        if (line === "END") {
+                            renderTasks(pending);
+                            pending = [];
+                        } else if (line.startsWith("TASK|")) {
+                            const parts = line.split("|");
+                            pending.push({ idx: parseInt(parts[1], 10), done: parts[2] === "1", text: parts.slice(3).join("|") });
+                        }
+                    }
+                }
+            } catch (e) {
+                setStatus("Disconnected", false);
+                document.getElementById("addBtn").disabled = true;
+            }
+        }
+
+        async function sendCommand(cmd) {
+            if (!writer) return;
+            await writer.write(new TextEncoder().encode(cmd + "\n"));
+        }
+
+        function setStatus(text, connected) {
+            const badge = document.getElementById("statusBadge");
+            badge.textContent = text;
+            badge.classList.toggle("connected", !!connected);
+        }
+
+        // ============================================================
+        // AI Schedule Deconstructor — HTTP to main.py's /api/organize,
+        // works over a plain network IP (no secure-context requirement,
+        // that's only a Web Serial restriction).
+        // ============================================================
+        async function deconstructSchedule() {
+            const input = document.getElementById("scheduleInput");
+            const text = input.value.trim();
+            if (!text) {
+                alert("Paste some schedule text first.");
+                return;
+            }
+            showToast("Processing with LLM...");
+            try {
+                const response = await fetch("/api/organize", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text }),
+                });
+                const result = await response.json();
+                if (result.status === "success") {
+                    showToast(`Extracted ${result.added.length} reminder(s)!`);
+                    input.value = "";
+                    if (writer) sendCommand("LIST"); // refresh the list if Web Serial is also connected
+                } else {
+                    alert("Error: " + (result.message || "Unknown error"));
+                }
+            } catch (e) {
+                alert("Couldn't reach the backend: " + e.message);
+            }
+        }
+
+        // ============================================================
+        // Task list rendering + manual add/toggle/delete (all Web Serial)
+        // ============================================================
+        function renderTasks(tasks) {
+            const list = document.getElementById("taskList");
+            list.innerHTML = "";
+            if (tasks.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted); text-align:center;">No tasks yet.</p>';
+                return;
+            }
+            tasks.forEach((t) => {
+                const div = document.createElement("div");
+                div.className = "task-item" + (t.done ? " done" : "");
+                div.innerHTML = `
+                    <div class="task-info">
+                        <input type="checkbox" ${t.done ? "checked" : ""} onchange="toggleTask(${t.idx})">
+                        <p></p>
+                    </div>
+                    <button class="btn-delete" onclick="deleteTask(${t.idx})">&#x1F5D1;</button>
+                `;
+                div.querySelector("p").textContent = t.text;
+                list.appendChild(div);
+            });
+        }
+
+        function addTask() {
+            const input = document.getElementById("taskText");
+            const text = input.value.trim();
+            if (!text) {
+                alert("Type a reminder first.");
+                return;
+            }
+            sendCommand("ADD|" + text);
+            input.value = "";
+            showToast("Task added!");
+        }
+
+        function toggleTask(idx) { sendCommand("TOGGLE|" + idx); }
+
+        function deleteTask(idx) {
+            if (!confirm("Delete this task?")) return;
+            sendCommand("DEL|" + idx);
+            showToast("Task removed");
+        }
+
+        document.getElementById("taskText").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") addTask();
+        });
+
+        function showToast(msg) {
+            const t = document.getElementById("toast");
+            t.textContent = msg || "Saved Successfully";
+            t.classList.add("show");
+            setTimeout(() => { t.classList.remove("show"); }, 2500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release builds strip resources that nothing references by id. The notification status-bar icon is looked up
+     by NAME at run time (AndroidInitializationSettings('ic_stat_badge')), so the shrinker can't see it is used -
+     without this rule flutter_local_notifications fails to initialise and no notification ever shows. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_badge" />

@@ -1,0 +1,8 @@
+name: QT BADGEr _v2
+description: "Root cause: Adafruit_ST7796S.h/.cpp (bundled inside the same library, compiled even though you never use that class) names its constructor parameters"
+ports: []
+bricks:
+- arduino:llm:
+    model: llamacpp:gemma-3-1b-it-Q4_0
+- arduino:web_ui: {}
+icon: 😀

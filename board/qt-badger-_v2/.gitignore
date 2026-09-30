@@ -1,0 +1,5 @@
+# ignore app cache folder
+.cache/
+
+# hub runtime state (tasks, settings, name tag) - see python/badge_link.py
+data/

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>QT BADGEr</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="sos-banner" class="sos-banner" hidden role="alert">
+  <div>
+    <strong id="sos-title">SOS</strong>
+    <span id="sos-detail"></span>
+  </div>
+  <div class="sos-actions">
+    <a id="sos-map" target="_blank" rel="noopener" class="btn small">Open map</a>
+    <button class="btn small" id="sos-dismiss">Dismiss</button>
+  </div>
+</div>
+
+<header class="top">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">&#x1FAAA;</span>
+    <div>
+      <h1>QT BADGEr</h1>
+      <p class="sub" id="subtitle">connecting&hellip;</p>
+    </div>
+  </div>
+  <div class="pills" id="pills"></div>
+</header>
+
+<div id="offline" class="notice" hidden></div>
+<div id="keybox" class="notice" hidden>
+  <p>This hub is protected with an access key.</p>
+  <form id="keyform" class="row">
+    <input id="keyinput" type="password" placeholder="Access key" autocomplete="off">
+    <button class="btn" type="submit">Unlock</button>
+  </form>
+</div>
+
+<main class="grid">
+
+  <!-- Remote -->
+  <section class="card span2" id="card-remote">
+    <h2 class="c-cyan">Remote control</h2>
+    <div class="remote">
+      <div class="pad" aria-label="Badge buttons">
+        <button class="btn pad-btn" data-nav="left" title="Short press pin 6: move left">&#9664;</button>
+        <button class="btn pad-btn" data-nav="right" title="Short press pin 4: move right">&#9654;</button>
+        <button class="btn pad-btn accent" data-nav="select" title="Hold pin 4: select">Select</button>
+        <button class="btn pad-btn" data-nav="back" title="Hold pin 6: back">Back</button>
+      </div>
+      <div class="screens" id="screens"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btn-find">&#x1F50A; Find my badge</button>
+      <button class="btn danger hold" id="btn-sos" data-hold="1200"><span class="hold-fill"></span><span class="hold-label">&#x1F6A8; Hold for SOS</span></button>
+    </div>
+    <p class="hint">Mirrors the two buttons on the badge: short presses move, long presses select / go back.</p>
+  </section>
+
+  <!-- Tasks -->
+  <section class="card" id="card-tasks">
+    <h2 class="c-amber">Tasks <span class="count" id="task-count"></span></h2>
+    <div id="task-list" class="list"></div>
+    <form id="task-form" class="row">
+      <input id="task-text" type="text" maxlength="80" placeholder="Add a reminder (max 80 characters)" autocomplete="off">
+      <button class="btn" type="submit">Add</button>
+    </form>
+    <div class="row wrap">
+      <button class="btn ghost small" id="btn-clear-done">Clear completed</button>
+    </div>
+    <details class="fold">
+      <summary>&#x1F916; AI schedule organizer</summary>
+      <textarea id="org-text" rows="4" placeholder="Paste an agenda, e.g. &quot;Meet Alex near stage B at 2pm. Check booth 12 demo.&quot;"></textarea>
+      <div class="row">
+        <select id="org-engine" title="Which engine reads the text">
+          <option value="auto">Auto (AI, falls back to rules)</option>
+          <option value="rules">Rules only (instant)</option>
+          <option value="llm">AI only (slow)</option>
+        </select>
+        <button class="btn" id="btn-organize">Extract &amp; push</button>
+      </div>
+      <p class="hint" id="org-status"></p>
+    </details>
+    <details class="fold">
+      <summary>&#x23F0; Timed reminders</summary>
+      <div id="reminder-list" class="list"></div>
+      <form id="reminder-form" class="row wrap">
+        <input id="rem-text" type="text" maxlength="80" placeholder="Reminder text" autocomplete="off">
+        <input id="rem-when" type="datetime-local">
+        <button class="btn" type="submit">Schedule</button>
+      </form>
+    </details>
+  </section>
+
+  <!-- Messages -->
+  <section class="card" id="card-msgs">
+    <h2 class="c-sky">Messages <span class="count" id="msg-count"></span></h2>
+    <form id="msg-form" class="row">
+      <input id="msg-text" type="text" maxlength="96" placeholder="Send a message to the badge&hellip;" autocomplete="off">
+      <button class="btn" type="submit">Send</button>
+    </form>
+    <label class="check"><input type="checkbox" id="msg-buzz" checked> Buzz when it arrives</label>
+    <div id="msg-list" class="list"></div>
+    <div class="row wrap"><button class="btn ghost small" id="btn-clear-msgs">Clear inbox</button></div>
+  </section>
+
+  <!-- Navigation -->
+  <section class="card" id="card-map">
+    <h2 class="c-cyan">Map &amp; destination</h2>
+    <div class="stats" id="gps-stats"></div>
+    <form id="dest-form" class="stack">
+      <input id="dest-name" type="text" maxlength="24" placeholder="Destination name" autocomplete="off">
+      <div class="row">
+        <input id="dest-lat" type="number" step="any" placeholder="Latitude">
+        <input id="dest-lon" type="number" step="any" placeholder="Longitude">
+      </div>
+      <div class="row wrap">
+        <button class="btn" type="submit">Set destination</button>
+        <button class="btn ghost" type="button" id="btn-here" title="Needs https or localhost in most browsers">Use my location</button>
+        <a class="btn ghost" id="btn-osm" target="_blank" rel="noopener">Open in OSM</a>
+      </div>
+    </form>
+    <p class="hint">No GPS fix on the badge (indoors)? Use <em>Send my location to the badge</em>: it navigates from that position instead.</p>
+    <button class="btn ghost" id="btn-send-pos">&#x1F4CD; Send my location to the badge</button>
+  </section>
+
+  <!-- Peers -->
+  <section class="card" id="card-peers">
+    <h2 class="c-green">Peers</h2>
+    <div id="peer-list" class="list"></div>
+    <details class="fold">
+      <summary>Report a peer manually</summary>
+      <form id="peer-form" class="stack">
+        <div class="row">
+          <input id="peer-id" type="number" min="0" max="255" placeholder="ID (0-255)">
+          <input id="peer-name" type="text" maxlength="10" placeholder="Name">
+        </div>
+        <div class="row">
+          <input id="peer-lat" type="number" step="any" placeholder="Latitude">
+          <input id="peer-lon" type="number" step="any" placeholder="Longitude">
+        </div>
+        <button class="btn" type="submit">Report</button>
+      </form>
+    </details>
+    <div class="row wrap"><button class="btn ghost small" id="btn-clear-peers">Clear peers</button></div>
+  </section>
+
+  <!-- Controls -->
+  <section class="card" id="card-controls">
+    <h2 class="c-slate">Controls</h2>
+    <label class="field">Brightness <output id="bl-out"></output>
+      <input id="bl" type="range" min="12" max="255" step="1">
+    </label>
+    <label class="check"><input type="checkbox" id="haptic"> Haptic alerts (proximity + message buzz)</label>
+    <label class="field">Peer alert distance
+      <select id="peer-range">
+        <option value="3">3 m</option><option value="10">10 m</option><option value="25">25 m</option><option value="50">50 m</option><option value="100">100 m</option>
+      </select>
+    </label>
+    <label class="field">Badge clock offset from UTC
+      <select id="tz"></select>
+    </label>
+  </section>
+
+  <!-- Name tag -->
+  <section class="card" id="card-profile">
+    <h2 class="c-gold">Name tag</h2>
+    <form id="profile-form" class="stack">
+      <input id="p-name" type="text" maxlength="24" placeholder="Name" autocomplete="off">
+      <input id="p-title" type="text" maxlength="32" placeholder="Title" autocomplete="off">
+      <input id="p-org" type="text" maxlength="32" placeholder="Organisation" autocomplete="off">
+      <button class="btn" type="submit">Show on badge</button>
+    </form>
+    <p class="hint" id="qr-hint">QR codes are set from the Android app (it does the QR maths and uploads the bitmap).</p>
+  </section>
+
+  <!-- Activity + system -->
+  <section class="card" id="card-events">
+    <h2 class="c-slate">Activity</h2>
+    <div id="event-list" class="list mono"></div>
+  </section>
+
+  <section class="card" id="card-system">
+    <h2 class="c-slate">Hub</h2>
+    <div class="stats" id="sys-stats"></div>
+    <label class="check"><input type="checkbox" id="speak"> Read reminders aloud in this browser</label>
+  </section>
+</main>
+
+<div id="toast" class="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
